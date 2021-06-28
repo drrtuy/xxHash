@@ -65,6 +65,7 @@
  /* ===  xxHash  === */
 #define XXH_INLINE_ALL
 #include "xxhash.h"
+#include "../../tests/collisions/allcodecs/hasher_c.h"
 
 size_t XXH32_wrapper(const void* src, size_t srcSize, void* dst, size_t dstCapacity, void* customPayload)
 {
@@ -94,6 +95,21 @@ size_t XXH128_wrapper(const void* src, size_t srcSize, void* dst, size_t dstCapa
 }
 
 
+size_t untMM3_wrapper(const void* src, size_t srcSize, void* dst, size_t dstCapacity, void* customPayload)
+{
+    (void)dst; (void)dstCapacity; (void)customPayload;
+    return (size_t) finalize(mm3_hash((const char*)src, srcSize, 0), 32);
+}
+
+
+size_t my_hash_sort_bin_wrapper(const void* src, size_t srcSize, void* dst, size_t dstCapacity, void* customPayload)
+{
+    (void)dst; (void)dstCapacity; (void)customPayload;
+    volatile size_t nr1 = 1;
+    volatile size_t nr2 = 4; 
+    return my_hash_sort_bin((unsigned char*) src, srcSize, nr1, nr2);
+}
+
 
 /* ==================================================
  * Table of hashes
@@ -102,9 +118,9 @@ size_t XXH128_wrapper(const void* src, size_t srcSize, void* dst, size_t dstCapa
 #include "bhDisplay.h"   /* Bench_Entry */
 
 #ifndef HARDWARE_SUPPORT
-#  define NB_HASHES 4
+#  define NB_HASHES 6
 #else
-#  define NB_HASHES 4
+#  define NB_HASHES 6
 #endif
 
 Bench_Entry const hashCandidates[NB_HASHES] = {
@@ -112,6 +128,8 @@ Bench_Entry const hashCandidates[NB_HASHES] = {
     { "XXH32" , XXH32_wrapper },
     { "XXH64" , XXH64_wrapper },
     { "XXH128", XXH128_wrapper },
+    { "untMM3", untMM3_wrapper },
+    { "MDBHSB", my_hash_sort_bin_wrapper },
 #ifdef HARDWARE_SUPPORT
     /* list here codecs which require specific hardware support, such SSE4.1, PCLMUL, AVX2, etc. */
 #endif

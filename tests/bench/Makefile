@@ -28,7 +28,7 @@
 
 
 CPPFLAGS += -I../..   # directory of xxHash source files
-CFLAGS   ?= -O3
+CFLAGS   ?= -O3 -g
 CFLAGS   += -std=c99 -Wall -Wextra -Wstrict-aliasing=1
 CFLAGS   += $(MOREFLAGS)   # custom way to add flags
 CXXFLAGS ?= -O3

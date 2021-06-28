@@ -32,7 +32,6 @@
 #define XXH_INLINE_ALL   /* XXH128_hash_t */
 #include "xxhash.h"
 
-
 /* return type */
 
 typedef union {
@@ -91,6 +90,21 @@ UniHash XXH32_wrapper (const void* data, size_t size)
     return uniHash32( XXH32(data, size, 0) );
 }
 
+#include "hasher_c.h"
+
+UniHash untMM3_wrapper(const void* src, size_t srcSize)
+{
+    return uniHash32(finalize(mm3_hash((const char*)src, srcSize, 0), 32));
+}
+
+UniHash MDBMHSB_wrapper(const void* src, size_t srcSize)
+{
+    volatile size_t nr1 = 1;
+    volatile size_t nr2 = 4;
+    return uniHash32(my_hash_sort_bin((unsigned char*) src, srcSize, nr1, nr2));
+}
+
+
 /* ===  Dummy integration example  === */
 
 #include "dummy.h"
@@ -112,7 +126,7 @@ typedef struct {
     int bits;
 } hashDescription;
 
-#define HASH_FN_TOTAL 7
+#define HASH_FN_TOTAL 8
 
 hashDescription hashfnTable[HASH_FN_TOTAL] = {
     { "xxh3"  ,  XXH3_wrapper,     64 },
@@ -121,7 +135,8 @@ hashDescription hashfnTable[HASH_FN_TOTAL] = {
     { "xxh128l", XXH128l_wrapper,  64 },
     { "xxh128h", XXH128h_wrapper,  64 },
     { "xxh32" ,  XXH32_wrapper,    32 },
-    { "badsum32",badsum32_wrapper, 32 },
+    { "untMM3",  untMM3_wrapper,   32 },
+    { "MDBMHSB", MDBMHSB_wrapper,   32 },
 };
 
 #endif   /* HASHES_H_1235465 */
